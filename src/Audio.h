@@ -5,8 +5,8 @@
 #include <cmath>
 #include <portaudio.h>
 
-#define SAMPLE_RATE       48000
-#define FRAMES_PER_BUFFER 64
+#define SAMPLE_RATE       48000 // Hz
+#define FRAMES_PER_BUFFER 64    // samples
 
 using namespace std;
 
@@ -15,45 +15,52 @@ class Audio
 public:
     Audio()
     {
-        initError = Pa_Initialize();
-        stream    = NULL;
+        paInitError = Pa_Initialize();
+        stream      = NULL;
 
-        if (initError != paNoError)
+        if (paInitError != paNoError)
             cout << "[Audio] Failed to initialize PortAudio." << endl;
     }
 
     ~Audio()
     {
-        if (initError == paNoError)
+        if (paInitError == paNoError)
             Pa_Terminate();
     }
 
     bool open()
     {
-        if (initError != paNoError)
+        if (paInitError != paNoError)
         {
             cout << "[Audio] Cannot open audio stream if PortAudio failed to initialize." << endl;
             return false;
         }
 
-        int numDevices = Pa_GetDeviceCount();
-        PaDeviceIndex defaultDeviceIndex = Pa_GetDefaultOutputDevice();
+        PaDeviceIndex numDevices = Pa_GetDeviceCount();
+        PaDeviceIndex deviceIndex;
+        const PaDeviceInfo * deviceInfo;
 
-        cout << endl << "[Audio] Available audio devices:" << endl;
-        for (int i = 0; i < numDevices; ++i)
+        cout << "[Audio] Available audio devices:" << endl;
+        for (deviceIndex = 0; deviceIndex < numDevices; ++deviceIndex)
         {
-            cout << i << ": " << Pa_GetDeviceInfo(i)->name;
-            cout << (defaultDeviceIndex == i ? " (default)" : "") << endl;
+            deviceInfo = Pa_GetDeviceInfo(deviceIndex);
+            cout << deviceIndex << ": (";
+            cout << deviceInfo->maxInputChannels << "i";
+            cout << deviceInfo->maxOutputChannels << ") ";
+            cout << deviceInfo->name << endl;
         }
 
-        const PaDeviceInfo * deviceInfo = Pa_GetDeviceInfo(defaultDeviceIndex);
-        if (defaultDeviceIndex == paNoDevice || !deviceInfo)
+        cout << "[Audio] Select audio device by index: ";
+        cin >> deviceIndex;
+
+        deviceInfo = Pa_GetDeviceInfo(deviceIndex);
+        if (deviceIndex == paNoDevice || !deviceInfo)
         {
-            cout << "[Audio] Failed to get default audio device info." << endl;
+            cout << "[Audio] Failed to get selected audio device info." << endl;
             return false;
         }
 
-        cout << endl << "[Audio] Selected default audio device: " << deviceInfo->name << endl;
+        cout << "[Audio] Selected audio device: " << deviceInfo->name << endl << endl;
 
         numInputChannels  = deviceInfo->maxInputChannels;
         numOutputChannels = deviceInfo->maxOutputChannels;
@@ -63,7 +70,7 @@ public:
 
         PaStreamParameters inputParameters;
 
-        inputParameters.device           = defaultDeviceIndex;
+        inputParameters.device           = deviceIndex;
         inputParameters.channelCount     = numInputChannels;
         inputParameters.sampleFormat     = sampleFormat;
         inputParameters.suggestedLatency = lowLatency;
@@ -71,7 +78,7 @@ public:
 
         PaStreamParameters outputParameters;
 
-        outputParameters.device           = defaultDeviceIndex;
+        outputParameters.device           = deviceIndex;
         outputParameters.channelCount     = numOutputChannels;
         outputParameters.sampleFormat     = sampleFormat;
         outputParameters.suggestedLatency = lowLatency;
@@ -102,28 +109,22 @@ public:
             return false;
         }
 
+        paError = Pa_StartStream(stream);
+
+        if (paError != paNoError)
+        {
+            cout << "[Audio] Failed to start audio stream." << endl;
+            Pa_CloseStream(stream);
+            return false;
+        }
+
         return true;
     } // open
 
-    bool close()
+    void close()
     {
-        if (!stream) return false;
-
-        return Pa_CloseStream(stream) == paNoError;
-    }
-
-    bool start()
-    {
-        if (!stream) return false;
-
-        return Pa_StartStream(stream) == paNoError;
-    }
-
-    bool stop()
-    {
-        if (!stream) return false;
-
-        return Pa_StopStream(stream) == paNoError;
+        Pa_StopStream(stream);
+        Pa_CloseStream(stream);
     }
 
 private:
@@ -168,10 +169,10 @@ private:
 
     static void paStreamFinished(void * userData)
     {
-        return ((Audio *) userData)->paStreamFinishedMethod();
+        ((Audio *) userData)->paStreamFinishedMethod();
     }
 
-    PaError initError;
+    PaError paInitError;
     PaStream * stream;
 
     int numInputChannels;

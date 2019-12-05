@@ -13,23 +13,19 @@ int main(int argc, const char * argv[])
     Audio audio;
     Midi midi;
 
-    if (!audio.open()) return 1;
-    if (!audio.start()) return 1;
+    if (!audio.open())
+        return 1;
 
     if (!midi.open())
     {
-        if (!audio.stop()) return 1;
-        if (!audio.close()) return 1;
-
+        audio.close();
         return 1;
     }
 
     while (true);
 
     midi.close();
-
-    if (!audio.stop()) return 1;
-    if (!audio.close()) return 1;
+    audio.close();
 
     return 0;
 }

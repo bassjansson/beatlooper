@@ -6,8 +6,8 @@
 #include <portmidi.h>
 #include <porttime.h>
 
-#define MIDI_TIMER_INTERVAL    1 // ms
-#define MIDI_INPUT_BUFFER_SIZE 100
+#define MIDI_TIMER_INTERVAL    1   // ms
+#define MIDI_INPUT_BUFFER_SIZE 100 // messages
 
 using namespace std;
 
@@ -41,7 +41,7 @@ public:
         PmDeviceID deviceIndex;
         const PmDeviceInfo * deviceInfo;
 
-        cout << endl << "[Midi] Available midi devices:" << endl;
+        cout << "[Midi] Available midi devices:" << endl;
         for (deviceIndex = 0; deviceIndex < numDevices; ++deviceIndex)
         {
             deviceInfo = Pm_GetDeviceInfo(deviceIndex);
