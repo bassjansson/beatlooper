@@ -1,7 +1,7 @@
 #include <iostream>
-#include <cmath>
 
-#include <portaudio.h>
+#include "Audio.h"
+
 #include <portmidi.h>
 #include <sndfile.h>
 #include <fftw3.h>
@@ -10,5 +10,15 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-    cout << "\nHello World! :)\n" << endl;
+    Audio audio;
+
+    if (!audio.open()) return 1;
+    if (!audio.start()) return 1;
+
+    while (true);
+
+    if (!audio.stop()) return 1;
+    if (!audio.close()) return 1;
+
+    return 0;
 }
