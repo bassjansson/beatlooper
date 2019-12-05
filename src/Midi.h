@@ -29,7 +29,7 @@ public:
             Pm_Terminate();
     }
 
-    bool open()
+    bool open(PmDeviceID deviceIndexAsArg = -1)
     {
         if (pmInitError != pmNoError)
         {
@@ -49,8 +49,15 @@ public:
             cout << (deviceInfo->input ? " (input)" : " (output)") << endl;
         }
 
-        cout << "[Midi] Select midi input device by index: ";
-        cin >> deviceIndex;
+        if (deviceIndexAsArg < 0)
+        {
+            cout << "[Midi] Select midi input device by index: ";
+            cin >> deviceIndex;
+        }
+        else
+        {
+            deviceIndex = deviceIndexAsArg;
+        }
 
         deviceInfo = Pm_GetDeviceInfo(deviceIndex);
         if (deviceIndex == pmNoDevice || !deviceInfo)

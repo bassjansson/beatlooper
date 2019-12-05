@@ -28,7 +28,7 @@ public:
             Pa_Terminate();
     }
 
-    bool open()
+    bool open(PaDeviceIndex deviceIndexAsArg = -1)
     {
         if (paInitError != paNoError)
         {
@@ -50,8 +50,15 @@ public:
             cout << deviceInfo->name << endl;
         }
 
-        cout << "[Audio] Select audio device by index: ";
-        cin >> deviceIndex;
+        if (deviceIndexAsArg < 0)
+        {
+            cout << "[Audio] Select audio device by index: ";
+            cin >> deviceIndex;
+        }
+        else
+        {
+            deviceIndex = deviceIndexAsArg;
+        }
 
         deviceInfo = Pa_GetDeviceInfo(deviceIndex);
         if (deviceIndex == paNoDevice || !deviceInfo)

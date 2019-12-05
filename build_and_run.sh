@@ -13,4 +13,4 @@ make
 echo
 
 # run program
-../bin/beatlooper
+../bin/beatlooper $1 $2
