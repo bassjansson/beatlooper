@@ -10,6 +10,7 @@ cd "${0%/*}"
 cd ./src
 make touch
 make
+echo
 
 # run program
 ../bin/beatlooper

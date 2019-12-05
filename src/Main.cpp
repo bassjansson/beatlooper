@@ -1,21 +1,32 @@
 #include <iostream>
 
 #include "Audio.h"
+#include "Midi.h"
 
-#include <portmidi.h>
 #include <sndfile.h>
 #include <fftw3.h>
 
 using namespace std;
 
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
     Audio audio;
+    Midi midi;
 
     if (!audio.open()) return 1;
     if (!audio.start()) return 1;
 
+    if (!midi.open())
+    {
+        if (!audio.stop()) return 1;
+        if (!audio.close()) return 1;
+
+        return 1;
+    }
+
     while (true);
+
+    midi.close();
 
     if (!audio.stop()) return 1;
     if (!audio.close()) return 1;
