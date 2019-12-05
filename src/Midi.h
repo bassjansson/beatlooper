@@ -99,7 +99,16 @@ public:
 private:
     void ptCallbackMethod(PtTimestamp timeStamp)
     {
-        // TODO
+        while (Pm_Poll(inputStream))
+        {
+            if (Pm_Read(inputStream, &midiEvent, 1) > 0)
+            {
+                // TODO: Process midi events here
+                cout << Pm_MessageStatus(midiEvent.message) << ", ";
+                cout << Pm_MessageData1(midiEvent.message) << ", ";
+                cout << Pm_MessageData2(midiEvent.message) << endl;
+            }
+        }
     }
 
     static void ptCallback(PtTimestamp timeStamp, void * userData)
@@ -108,7 +117,8 @@ private:
     }
 
     PmError pmInitError;
-    PortMidiStream * inputStream;
+    PmEvent midiEvent;
+    PmStream * inputStream;
 };
 
 #endif // __MIDI_H__
