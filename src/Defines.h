@@ -10,6 +10,8 @@
 #define TRACK_BUFFER_LENGTH 60 // seconds
 #define TRACK_NUM_CHANNELS  2
 
-typedef tick_t unsigned long;
+#define NUMBER_OF_TRACKS    8
+
+typedef unsigned long tick_t;
 
 #endif // __DEFINES_H__

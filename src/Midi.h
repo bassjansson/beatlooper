@@ -7,16 +7,18 @@
 #include <porttime.h>
 
 #include "Defines.h"
+#include "Track.h"
 
 using namespace std;
 
 class Midi
 {
 public:
-    Midi()
+    Midi(Track ** tracks) :
+        inputStream(NULL),
+        tracks(tracks)
     {
         pmInitError = Pm_Initialize();
-        inputStream = NULL;
 
         if (pmInitError != pmNoError)
             cout << "[Midi] Failed to initialize PortMidi." << endl;
@@ -125,6 +127,8 @@ private:
     PmError pmInitError;
     PmEvent midiEvent;
     PmStream * inputStream;
+
+    Track ** tracks;
 };
 
 #endif // __MIDI_H__

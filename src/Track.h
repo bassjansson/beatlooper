@@ -87,13 +87,15 @@ public:
         int           numOutputChannels,
         tick_t        currentTicks)
     {
+        unsigned long offset;
+
         switch (trackState)
         {
             case STOPPED:
                 break;
 
             case PLAYING:
-                unsigned long offset = ((currentTicks - recStartTicks) % recLengthTicks) * AUDIO_BUFFER_SIZE;
+                offset = ((currentTicks - recStartTicks) % recLengthTicks) * AUDIO_BUFFER_SIZE;
 
                 for (int i = 0; i < framesPerBuffer; ++i)
                 {
@@ -109,7 +111,7 @@ public:
 
                 if (recLengthTicks < MAX_TRACK_TICKS)
                 {
-                    unsigned long offset = recLengthTicks * AUDIO_BUFFER_SIZE;
+                    offset = recLengthTicks * AUDIO_BUFFER_SIZE;
 
                     for (int i = 0; i < framesPerBuffer; ++i)
                     {

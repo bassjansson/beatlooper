@@ -6,16 +6,21 @@
 #include <portaudio.h>
 
 #include "Defines.h"
+#include "Track.h"
 
 using namespace std;
 
 class Audio
 {
 public:
-    Audio()
+    Audio(Track ** tracks) :
+        stream(NULL),
+        numInputChannels(0),
+        numOutputChannels(0),
+        tracks(tracks),
+        currentTicks(0)
     {
         paInitError = Pa_Initialize();
-        stream      = NULL;
 
         if (paInitError != paNoError)
             cout << "[Audio] Failed to initialize PortAudio." << endl;
@@ -183,6 +188,9 @@ private:
 
     int numInputChannels;
     int numOutputChannels;
+
+    Track ** tracks;
+    tick_t currentTicks;
 };
 
 #endif // __AUDIO_H__

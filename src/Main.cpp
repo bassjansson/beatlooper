@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "Defines.h"
+#include "Track.h"
 #include "Audio.h"
 #include "Midi.h"
 
@@ -16,8 +18,12 @@ int main(int argc, const char * argv[])
     if (argc > 1) audioDeviceIndex = atoi(argv[1]);
     if (argc > 2) midiDeviceIndex = atoi(argv[2]);
 
-    Audio audio;
-    Midi midi;
+    Track ** tracks = new Track *[NUMBER_OF_TRACKS];
+    for (int i = 0; i < NUMBER_OF_TRACKS; ++i)
+        tracks[i] = new Track();
+
+    Audio audio(tracks);
+    Midi midi(tracks);
 
     if (!audio.open(audioDeviceIndex))
         return 1;
