@@ -137,11 +137,11 @@ private:
     int paCallbackMethod(
         const float *                    inputBuffer,
         float *                          outputBuffer,
-        unsigned long                    bufferSize,
+        unsigned long                    framesPerBuffer,
         const PaStreamCallbackTimeInfo * timeInfo,
         PaStreamCallbackFlags            statusFlags)
     {
-        for (unsigned long i = 0; i < bufferSize; ++i)
+        for (unsigned long i = 0; i < framesPerBuffer; ++i)
         {
             float input = inputBuffer[i * numInputChannels]; // channel 0
 
@@ -160,7 +160,7 @@ private:
     static int paCallback(
         const void *                     inputBuffer,
         void *                           outputBuffer,
-        unsigned long                    bufferSize,
+        unsigned long                    framesPerBuffer,
         const PaStreamCallbackTimeInfo * timeInfo,
         PaStreamCallbackFlags            statusFlags,
         void *                           userData)
@@ -168,7 +168,7 @@ private:
         return ((Audio *) userData)->paCallbackMethod(
             (float *) inputBuffer,
             (float *) outputBuffer,
-            bufferSize,
+            framesPerBuffer,
             timeInfo,
             statusFlags);
     }

@@ -7,4 +7,9 @@
 #define MIDI_TIMER_INTERVAL 1   // ms
 #define MIDI_IN_BUFFER_SIZE 100 // messages
 
+#define TRACK_BUFFER_LENGTH 60 // seconds
+#define TRACK_NUM_CHANNELS  2
+
+typedef tick_t unsigned long;
+
 #endif // __DEFINES_H__
