@@ -18,7 +18,10 @@ enum TrackState
 class Track
 {
 public:
-    Track() : MAX_TRACK_TICKS(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE / AUDIO_BUFFER_SIZE)
+    Track(int inputChannelLeft, int inputChannelRight) :
+        MAX_TRACK_TICKS(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE / AUDIO_BUFFER_SIZE),
+        inputChannelLeft(inputChannelLeft),
+        inputChannelRight(inputChannelRight)
     {
         trackState      = STOPPED;
         trackBufferSize = MAX_TRACK_TICKS * AUDIO_BUFFER_SIZE * TRACK_NUM_CHANNELS;
@@ -37,7 +40,7 @@ public:
         for (unsigned long i = 0; i < trackBufferSize; ++i)
             trackBuffer[i] = 0.0f;
 
-        recStartTicks = 0;
+        recStartTicks  = 0;
         recLengthTicks = 0;
     }
 
@@ -95,12 +98,17 @@ public:
                 break;
 
             case PLAYING:
-                offset = ((currentTicks - recStartTicks) % recLengthTicks) * AUDIO_BUFFER_SIZE;
-
-                for (int i = 0; i < framesPerBuffer; ++i)
+                if (recLengthTicks > 0)
                 {
-                    outputBuffer[i * numOutputChannels + 0] += trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + 0];
-                    outputBuffer[i * numOutputChannels + 1] += trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + 1];
+                    offset = ((currentTicks - recStartTicks) % recLengthTicks) * AUDIO_BUFFER_SIZE;
+
+                    for (int i = 0; i < framesPerBuffer; ++i)
+                    {
+                        outputBuffer[i * numOutputChannels + LEFT] +=
+                          trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + LEFT];
+                        outputBuffer[i * numOutputChannels + RIGHT] +=
+                          trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + RIGHT];
+                    }
                 }
 
                 break;
@@ -115,8 +123,10 @@ public:
 
                     for (int i = 0; i < framesPerBuffer; ++i)
                     {
-                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + 0] = inputBuffer[i * numInputChannels + 0];
-                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + 1] = inputBuffer[i * numInputChannels + 1];
+                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + LEFT] =
+                          inputBuffer[i * numInputChannels + inputChannelLeft];
+                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + RIGHT] =
+                          inputBuffer[i * numInputChannels + inputChannelRight];
                     }
 
                     recLengthTicks++;
@@ -127,7 +137,7 @@ public:
 
                 break;
         }
-    }
+    } // process
 
 private:
     TrackState trackState;
@@ -137,6 +147,9 @@ private:
     const tick_t MAX_TRACK_TICKS;
     tick_t recStartTicks;
     tick_t recLengthTicks;
+
+    int inputChannelLeft;
+    int inputChannelRight;
 };
 
 #endif // __TRACK_H__

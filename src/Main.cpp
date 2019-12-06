@@ -13,15 +13,19 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    int audioDeviceIndex = -1;
-    int midiDeviceIndex  = -1;
+    int inputChannelLeft  = 0;
+    int inputChannelRight = 0;
+    int audioDeviceIndex  = -1;
+    int midiDeviceIndex   = -1;
 
-    if (argc > 1) audioDeviceIndex = atoi(argv[1]);
-    if (argc > 2) midiDeviceIndex = atoi(argv[2]);
+    if (argc > 1) inputChannelLeft = atoi(argv[1]) - 1;
+    if (argc > 2) inputChannelRight = atoi(argv[2]) - 1;
+    if (argc > 3) audioDeviceIndex = atoi(argv[3]);
+    if (argc > 4) midiDeviceIndex = atoi(argv[4]);
 
     Track ** tracks = new Track *[NUMBER_OF_TRACKS];
     for (int i = 0; i < NUMBER_OF_TRACKS; ++i)
-        tracks[i] = new Track();
+        tracks[i] = new Track(inputChannelLeft, inputChannelRight);
 
     Audio audio(tracks);
     Midi midi(tracks);
@@ -42,4 +46,4 @@ int main(int argc, const char * argv[])
     audio.close();
 
     return 0;
-}
+} // main

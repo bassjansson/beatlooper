@@ -12,6 +12,9 @@
 
 #define NUMBER_OF_TRACKS    8
 
+#define LEFT                0
+#define RIGHT               1
+
 typedef unsigned long tick_t;
 
 #endif // __DEFINES_H__
