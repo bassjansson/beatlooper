@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 
 #include "Defines.h"
 #include "Track.h"
@@ -35,7 +36,7 @@ int main(int argc, const char * argv[])
     }
 
     while (true)
-    { }
+        usleep(1000000);
 
     midi.close();
     audio.close();

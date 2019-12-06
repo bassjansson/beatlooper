@@ -147,12 +147,19 @@ private:
         PaStreamCallbackFlags            statusFlags)
     {
         for (unsigned long i = 0; i < framesPerBuffer; ++i)
-        {
-            float input = inputBuffer[i * numInputChannels]; // channel 0
+            for (int c = 0; c < numOutputChannels; ++c)
+                outputBuffer[i * numOutputChannels + c] = 0.0f;
 
-            outputBuffer[i * numOutputChannels + 0] = input; // left
-            outputBuffer[i * numOutputChannels + 1] = input; // right
-        }
+        for (int i = 0; i < NUMBER_OF_TRACKS; ++i)
+            tracks[i]->process(
+                inputBuffer,
+                outputBuffer,
+                framesPerBuffer,
+                numInputChannels,
+                numOutputChannels,
+                currentTicks);
+
+        currentTicks++;
 
         return paContinue;
     }

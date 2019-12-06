@@ -111,10 +111,20 @@ private:
         {
             if (Pm_Read(inputStream, &midiEvent, 1) > 0)
             {
-                // TODO: Process midi events here
-                cout << Pm_MessageStatus(midiEvent.message) << ", ";
-                cout << Pm_MessageData1(midiEvent.message) << ", ";
-                cout << Pm_MessageData2(midiEvent.message) << endl;
+                if (Pm_MessageStatus(midiEvent.message) == 144)
+                {
+                    int command = (Pm_MessageData1(midiEvent.message) + 13) % (NUMBER_OF_TRACKS * 2);
+                    int track   = command % 8;
+
+                    if (command < NUMBER_OF_TRACKS)
+                        tracks[track]->togglePlayStop();
+                    else
+                        tracks[track]->toggleRecord();
+                }
+
+                // cout << Pm_MessageStatus(midiEvent.message) << ", ";
+                // cout << Pm_MessageData1(midiEvent.message) << ", ";
+                // cout << Pm_MessageData2(midiEvent.message) << endl;
             }
         }
     }
