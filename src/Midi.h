@@ -114,12 +114,12 @@ private:
                 if (Pm_MessageStatus(midiEvent.message) == 144)
                 {
                     int command = (Pm_MessageData1(midiEvent.message) + 13) % (NUMBER_OF_TRACKS * 2);
-                    int track   = command % 8;
+                    int track   = command % NUMBER_OF_TRACKS;
+                    bool record = command / NUMBER_OF_TRACKS;
 
-                    if (command < NUMBER_OF_TRACKS)
-                        tracks[track]->togglePlayStop();
-                    else
-                        tracks[track]->toggleRecord();
+                    record ?
+                    tracks[track]->toggleRecord() :
+                    tracks[track]->togglePlayStop();
                 }
 
                 // cout << Pm_MessageStatus(midiEvent.message) << ", ";

@@ -18,7 +18,8 @@ enum TrackState
 class Track
 {
 public:
-    Track(int inputChannelLeft, int inputChannelRight) :
+    Track(int trackNumber, int inputChannelLeft, int inputChannelRight) :
+        trackNumber(trackNumber),
         MAX_TRACK_TICKS(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE / AUDIO_BUFFER_SIZE),
         inputChannelLeft(inputChannelLeft),
         inputChannelRight(inputChannelRight)
@@ -43,6 +44,20 @@ public:
         recStartTicks  = 0;
         recLengthTicks = 0;
     }
+    
+    void printTrackStatus()
+    {
+        cout << "[Track " << trackNumber << "] ";
+
+        switch (trackState)
+        {
+            case STOPPED: cout << "STOPPED"; break;
+            case PLAYING: cout << "PLAYING"; break;
+            case RECORDING: cout << "RECORDING"; break;
+        }
+
+        cout << endl;
+    }
 
     void toggleRecord()
     {
@@ -62,6 +77,8 @@ public:
                 trackState = STOPPED;
                 break;
         }
+
+        printTrackStatus();
     }
 
     void togglePlayStop()
@@ -80,6 +97,8 @@ public:
                 trackState = PLAYING;
                 break;
         }
+
+        printTrackStatus();
     }
 
     void process(
@@ -143,6 +162,7 @@ private:
     TrackState trackState;
     unsigned long trackBufferSize;
     float * trackBuffer;
+    const int trackNumber;
 
     const tick_t MAX_TRACK_TICKS;
     tick_t recStartTicks;
