@@ -5,8 +5,7 @@
 #include <cmath>
 #include <portaudio.h>
 
-#define SAMPLE_RATE       48000 // Hz
-#define FRAMES_PER_BUFFER 64    // samples
+#include "Defines.h"
 
 using namespace std;
 
@@ -95,8 +94,8 @@ public:
             &stream,
             &inputParameters,
             &outputParameters,
-            SAMPLE_RATE,
-            FRAMES_PER_BUFFER,
+            AUDIO_SAMPLE_RATE,
+            AUDIO_BUFFER_SIZE,
             paNoFlag,
             &Audio::paCallback,
             this);
@@ -138,11 +137,11 @@ private:
     int paCallbackMethod(
         const float *                    inputBuffer,
         float *                          outputBuffer,
-        unsigned long                    framesPerBuffer,
+        unsigned long                    bufferSize,
         const PaStreamCallbackTimeInfo * timeInfo,
         PaStreamCallbackFlags            statusFlags)
     {
-        for (unsigned long i = 0; i < framesPerBuffer; ++i)
+        for (unsigned long i = 0; i < bufferSize; ++i)
         {
             float input = inputBuffer[i * numInputChannels]; // channel 0
 
@@ -161,7 +160,7 @@ private:
     static int paCallback(
         const void *                     inputBuffer,
         void *                           outputBuffer,
-        unsigned long                    framesPerBuffer,
+        unsigned long                    bufferSize,
         const PaStreamCallbackTimeInfo * timeInfo,
         PaStreamCallbackFlags            statusFlags,
         void *                           userData)
@@ -169,7 +168,7 @@ private:
         return ((Audio *) userData)->paCallbackMethod(
             (float *) inputBuffer,
             (float *) outputBuffer,
-            framesPerBuffer,
+            bufferSize,
             timeInfo,
             statusFlags);
     }

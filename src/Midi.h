@@ -6,8 +6,7 @@
 #include <portmidi.h>
 #include <porttime.h>
 
-#define MIDI_TIMER_INTERVAL    1   // ms
-#define MIDI_INPUT_BUFFER_SIZE 100 // messages
+#include "Defines.h"
 
 using namespace std;
 
@@ -83,7 +82,7 @@ public:
             &inputStream,
             deviceIndex,
             NULL,
-            MIDI_INPUT_BUFFER_SIZE,
+            MIDI_IN_BUFFER_SIZE,
             NULL,
             NULL);
 
