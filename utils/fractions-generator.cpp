@@ -4,15 +4,17 @@
 
 using namespace std;
 
-const int NUM_OF_INTEGERS  = 23;
-const int NUM_OF_FRACTIONS = NUM_OF_INTEGERS * NUM_OF_INTEGERS;
-
-const int integers[NUM_OF_INTEGERS] = {
-    1,  2,  3,  4,  5,  6, 7, 8, 9, // 9
-    10, 12, 14, 15, 16, 18,         // 6
-    20, 21, 24, 25, 27, 28,         // 6
-    30, 32                          // 2
+const int integers[] = {
+    1,
+    2, 3,
+    4, 6,  5,
+    8, 12, 10, 7,
+    16,24, 20, 14, 9,
+    32
 };
+
+const int NUM_OF_INTEGERS  = sizeof(integers) / sizeof(int);
+const int NUM_OF_FRACTIONS = NUM_OF_INTEGERS * NUM_OF_INTEGERS;
 
 struct Fraction
 {
