@@ -4,6 +4,8 @@
 
 using namespace std;
 
+#define MAX_FRACTION_PRODUCT 32
+
 const int integers[] = {
     1,
     2, 3,
@@ -63,23 +65,19 @@ const Fraction FRACTIONS_ARRAY[] = {\n";
 
     for (int i = 0; i < NUM_OF_FRACTIONS; ++i)
     {
-        if (fracVec[i].f > 1.0)
-            continue;
-
         if (i > 0)
         {
             if (fracVec[i].f == fracVec[i - 1].f)
                 continue;
         }
 
+        if (fracVec[i].x * fracVec[i].y > MAX_FRACTION_PRODUCT)
+            continue;
+
         cout << "    { " << fracVec[i].x;
         cout << ", " << fracVec[i].y;
         cout << ", " << fracVec[i].f << " }";
-        if (i < NUM_OF_FRACTIONS - 1) cout << ",";
-
-        if (i > 0)
-            cout << " // " << int((fracVec[i].f / fracVec[i - 1].f - 1.0f) * 100.f + 0.5f) << " %";
-
+        cout << (i < NUM_OF_FRACTIONS - 1 ? "," : "");
         cout << endl;
     }
 
