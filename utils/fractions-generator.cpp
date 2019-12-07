@@ -63,6 +63,9 @@ const Fraction FRACTIONS_ARRAY[] = {\n";
 
     for (int i = 0; i < NUM_OF_FRACTIONS; ++i)
     {
+        if (fracVec[i].f > 1.0)
+            continue;
+
         if (i > 0)
         {
             if (fracVec[i].f == fracVec[i - 1].f)
