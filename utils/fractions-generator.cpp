@@ -59,6 +59,10 @@ const Fraction FRACTIONS_ARRAY[] = {\n";
 
     for (int i = 0; i < NUM_OF_FRACTIONS; ++i)
     {
+        if (i > 0)
+            if (fracVec[i].f == fracVec[i - 1].f)
+                continue;
+
         cout << "    { " << fracVec[i].x;
         cout << ", " << fracVec[i].y;
         cout << ", " << fracVec[i].f << " }";
