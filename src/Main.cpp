@@ -13,8 +13,12 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
+    cout << "[Main] Usage:" << endl;
+    cout << "beatlooper <chan-in-L> <chan-in-R> <audio-dev> <midi-dev>" << endl;
+    cout << endl;
+
     int inputChannelLeft  = 0;
-    int inputChannelRight = 0;
+    int inputChannelRight = 1;
     int audioDeviceIndex  = -1;
     int midiDeviceIndex   = -1;
 
@@ -22,6 +26,10 @@ int main(int argc, const char * argv[])
     if (argc > 2) inputChannelRight = atoi(argv[2]) - 1;
     if (argc > 3) audioDeviceIndex = atoi(argv[3]);
     if (argc > 4) midiDeviceIndex = atoi(argv[4]);
+
+    cout << "[Main] Selected audio input channel left (" << inputChannelLeft + 1;
+    cout << ") and right (" << inputChannelRight + 1 << ")" << endl;
+    cout << endl;
 
     Track ** tracks = new Track *[NUMBER_OF_TRACKS];
     for (int i = 0; i < NUMBER_OF_TRACKS; ++i)
