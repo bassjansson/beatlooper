@@ -20,12 +20,14 @@ class Track
 public:
     Track(int trackNumber, int inputChannelLeft, int inputChannelRight) :
         trackNumber(trackNumber),
-        MAX_TRACK_TICKS(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE / AUDIO_BUFFER_SIZE),
+        trackState(STOPPED),
+        recStartFrame(0),
+        recLengthFrames(0),
+        recLengthFramesMax(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE),
         inputChannelLeft(inputChannelLeft),
         inputChannelRight(inputChannelRight)
     {
-        trackState      = STOPPED;
-        trackBufferSize = MAX_TRACK_TICKS * AUDIO_BUFFER_SIZE * TRACK_NUM_CHANNELS;
+        trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
         trackBuffer     = new float[trackBufferSize];
 
         clearRecording();
@@ -38,22 +40,25 @@ public:
 
     void clearRecording()
     {
-        for (unsigned long i = 0; i < trackBufferSize; ++i)
-            trackBuffer[i] = 0.0f;
+        recStartFrame   = 0;
+        recLengthFrames = 0;
 
-        recStartTicks  = 0;
-        recLengthTicks = 0;
+        for (frame_t i = 0; i < trackBufferSize; ++i)
+            trackBuffer[i] = 0.0f;
     }
-    
+
     void printTrackStatus()
     {
         cout << "[Track " << trackNumber << "] ";
 
         switch (trackState)
         {
-            case STOPPED: cout << "STOPPED"; break;
-            case PLAYING: cout << "PLAYING"; break;
-            case RECORDING: cout << "RECORDING"; break;
+            case STOPPED: cout << "STOPPED";
+                break;
+            case PLAYING: cout << "PLAYING";
+                break;
+            case RECORDING: cout << "RECORDING";
+                break;
         }
 
         cout << endl;
@@ -104,12 +109,12 @@ public:
     void process(
         const float * inputBuffer,
         float *       outputBuffer,
-        unsigned long framesPerBuffer,
+        frame_t       framesPerBuffer,
         int           numInputChannels,
         int           numOutputChannels,
-        tick_t        currentTicks)
+        frame_t       currentFrame)
     {
-        unsigned long offset;
+        frame_t playPositionFrame;
 
         switch (trackState)
         {
@@ -117,41 +122,40 @@ public:
                 break;
 
             case PLAYING:
-                if (recLengthTicks > 0)
+                if (recLengthFrames > 0)
                 {
-                    offset = ((currentTicks - recStartTicks) % recLengthTicks) * AUDIO_BUFFER_SIZE;
+                    playPositionFrame = (currentFrame - recStartFrame) % recLengthFrames;
 
-                    for (int i = 0; i < framesPerBuffer; ++i)
+                    for (frame_t i = 0; i < framesPerBuffer; ++i)
                     {
                         outputBuffer[i * numOutputChannels + LEFT] +=
-                          trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + LEFT];
+                          trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT];
                         outputBuffer[i * numOutputChannels + RIGHT] +=
-                          trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + RIGHT];
+                          trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT];
                     }
                 }
 
                 break;
 
             case RECORDING:
-                if (recStartTicks == 0 && recLengthTicks == 0)
-                    recStartTicks = currentTicks;
+                if (recLengthFrames == 0)
+                    recStartFrame = currentFrame;
 
-                if (recLengthTicks < MAX_TRACK_TICKS)
+                if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
                 {
-                    offset = recLengthTicks * AUDIO_BUFFER_SIZE;
-
-                    for (int i = 0; i < framesPerBuffer; ++i)
+                    for (frame_t i = 0; i < framesPerBuffer; ++i)
                     {
-                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + LEFT] =
+                        trackBuffer[(i + recLengthFrames) * TRACK_NUM_CHANNELS + LEFT] =
                           inputBuffer[i * numInputChannels + inputChannelLeft];
-                        trackBuffer[(i + offset) * TRACK_NUM_CHANNELS + RIGHT] =
+                        trackBuffer[(i + recLengthFrames) * TRACK_NUM_CHANNELS + RIGHT] =
                           inputBuffer[i * numInputChannels + inputChannelRight];
                     }
 
-                    recLengthTicks++;
-
-                    if (recLengthTicks >= MAX_TRACK_TICKS)
-                        trackState = PLAYING;
+                    recLengthFrames += framesPerBuffer;
+                }
+                else
+                {
+                    trackState = STOPPED;
                 }
 
                 break;
@@ -159,14 +163,15 @@ public:
     } // process
 
 private:
-    TrackState trackState;
-    unsigned long trackBufferSize;
-    float * trackBuffer;
     const int trackNumber;
+    TrackState trackState;
 
-    const tick_t MAX_TRACK_TICKS;
-    tick_t recStartTicks;
-    tick_t recLengthTicks;
+    frame_t trackBufferSize;
+    float * trackBuffer;
+
+    frame_t recStartFrame;
+    frame_t recLengthFrames;
+    const frame_t recLengthFramesMax;
 
     int inputChannelLeft;
     int inputChannelRight;

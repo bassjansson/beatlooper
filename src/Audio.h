@@ -18,7 +18,7 @@ public:
         numInputChannels(0),
         numOutputChannels(0),
         tracks(tracks),
-        currentTicks(0)
+        currentFrame(0)
     {
         paInitError = Pa_Initialize();
 
@@ -142,11 +142,11 @@ private:
     int paCallbackMethod(
         const float *                    inputBuffer,
         float *                          outputBuffer,
-        unsigned long                    framesPerBuffer,
+        frame_t                          framesPerBuffer,
         const PaStreamCallbackTimeInfo * timeInfo,
         PaStreamCallbackFlags            statusFlags)
     {
-        for (unsigned long i = 0; i < framesPerBuffer; ++i)
+        for (frame_t i = 0; i < framesPerBuffer; ++i)
             for (int c = 0; c < numOutputChannels; ++c)
                 outputBuffer[i * numOutputChannels + c] = 0.0f;
 
@@ -157,9 +157,9 @@ private:
                 framesPerBuffer,
                 numInputChannels,
                 numOutputChannels,
-                currentTicks);
+                currentFrame);
 
-        currentTicks++;
+        currentFrame += framesPerBuffer;
 
         return paContinue;
     }
@@ -197,7 +197,7 @@ private:
     int numOutputChannels;
 
     Track ** tracks;
-    tick_t currentTicks;
+    frame_t currentFrame;
 };
 
 #endif // __AUDIO_H__

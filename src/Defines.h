@@ -15,6 +15,6 @@
 #define LEFT                0
 #define RIGHT               1
 
-typedef unsigned long tick_t;
+typedef unsigned long long frame_t;
 
 #endif // __DEFINES_H__
