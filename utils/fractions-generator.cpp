@@ -73,6 +73,10 @@ const Fraction FRACTIONS_ARRAY[] = {\n";
         cout << ", " << fracVec[i].y;
         cout << ", " << fracVec[i].f << " }";
         if (i < NUM_OF_FRACTIONS - 1) cout << ",";
+
+        if (i > 0)
+            cout << " // " << int((fracVec[i].f / fracVec[i - 1].f - 1.0f) * 100.f + 0.5f) << " %";
+
         cout << endl;
     }
 
