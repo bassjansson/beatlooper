@@ -41,18 +41,34 @@ int main()
 
     sort(fracVec.begin(), fracVec.end(), compareFractions);
 
-    cout << "const Fraction constantFractions[] = {" << endl;
+    cout << "\
+#ifndef __FRACTIONS_H__\n\
+#define __FRACTIONS_H__\n\
+\n\
+struct Fraction\n\
+{\n\
+    int   x;\n\
+    int   y;\n\
+    float f;\n\
+};\n\
+\n\
+const Fraction FRACTIONS_ARRAY[] = {\n";
 
     for (int i = 0; i < NUM_OF_FRACTIONS; ++i)
     {
-        cout << "\t{ " << fracVec[i].x;
+        cout << "    { " << fracVec[i].x;
         cout << ", " << fracVec[i].y;
-        cout << ", " << fracVec[i].f << "f }";
+        cout << ", " << fracVec[i].f << " }";
         if (i < NUM_OF_FRACTIONS - 1) cout << ",";
         cout << endl;
     }
 
-    cout << "};" << endl;
+    cout << "\
+};\n\
+\n\
+const int FRACTIONS_ARRAY_LENGTH = sizeof(FRACTIONS_ARRAY) / sizeof(Fraction);\n\
+\n\
+#endif // __FRACTIONS_H__\n";
 
     return 0;
 }
