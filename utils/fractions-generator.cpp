@@ -25,6 +25,9 @@ Fraction fractions[NUM_OF_FRACTIONS];
 
 bool compareFractions(Fraction a, Fraction b)
 {
+    if (a.f == b.f)
+        return a.x < b.x;
+
     return a.f < b.f;
 }
 
