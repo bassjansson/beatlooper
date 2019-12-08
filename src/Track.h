@@ -112,8 +112,8 @@ public:
             trackBuffer[i * TRACK_NUM_CHANNELS + RIGHT] *= f;
 
             // Fade out
-            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + LEFT]  *= f;
-            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= f;
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + LEFT]  *= 1.0f - f;
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= 1.0f - f;
         }
 
         if (shouldStartPlayback)
@@ -123,7 +123,7 @@ public:
     void startPlayback()
     {
         shouldFadeIn = true;
-        trackState = PLAYING;
+        trackState   = PLAYING;
     }
 
     void stopPlayback()
