@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "Defines.h"
+#include "Fractions.h"
 
 using namespace std;
 
@@ -49,8 +50,48 @@ public:
 
     void stopRecording(TrackState stateAfter)
     {
+        cout << "[Track " << trackIndex + 1 << "] ";
+
+        if (recLengthDenominator == 0)
+        {
+            recLengthDenominator = recLengthFrames;
+
+            cout << "Setting track and denominator recording length to ";
+            cout << (float) recLengthDenominator / AUDIO_SAMPLE_RATE << " seconds." << endl;
+        }
+        else
+        {
+            double recLengthFraction = (double) recLengthFrames / recLengthDenominator;
+            double idealFraction;
+
+            double previousDiff = 1000.0;
+            double currentDiff;
+
+            double chosenFraction   = 1.0;
+            int chosenFractionIndex = FRACTIONS_ARRAY_LENGTH / 2;
+
+            for (int i = 0; i < FRACTIONS_ARRAY_LENGTH; ++i)
+            {
+                idealFraction = (double) FRACTIONS_ARRAY[i].x / FRACTIONS_ARRAY[i].y;
+                currentDiff   = abs(recLengthFraction - idealFraction);
+
+                if (currentDiff < previousDiff)
+                {
+                    previousDiff        = currentDiff;
+                    chosenFraction      = idealFraction;
+                    chosenFractionIndex = i;
+                }
+            }
+
+            recLengthFrames = (frame_t) (recLengthDenominator * chosenFraction + 0.5);
+
+            cout << "Setting track recording length to ";
+            cout << FRACTIONS_ARRAY[chosenFractionIndex].x << "/";
+            cout << FRACTIONS_ARRAY[chosenFractionIndex].y << " of denominator." << endl;
+        }
+
         trackState = stateAfter;
-    }
+    } // stopRecording
 
     void toggleRecording()
     {
@@ -165,9 +206,12 @@ private:
     frame_t recStartFrame;
     frame_t recLengthFrames;
     const frame_t recLengthFramesMax;
+    static frame_t recLengthDenominator;
 
     int inputChannelLeft;
     int inputChannelRight;
 };
+
+frame_t Track::recLengthDenominator = 0;
 
 #endif // __TRACK_H__
