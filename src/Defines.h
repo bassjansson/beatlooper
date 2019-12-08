@@ -2,14 +2,15 @@
 #define __DEFINES_H__
 
 #define AUDIO_SAMPLE_RATE   48000 // Hz
-#define AUDIO_BUFFER_SIZE   64    // samples
+#define AUDIO_BUFFER_SIZE   64    // frames
 
 #define MIDI_TIMER_INTERVAL 1   // ms
 #define MIDI_IN_BUFFER_SIZE 100 // messages
 
 #define TRACK_BUFFER_LENGTH 60 // seconds
+#define TRACK_FADE_LENGTH   5  // ms
 #define TRACK_NUM_CHANNELS  2
-#define TRACK_REC_LATENCY   (AUDIO_BUFFER_SIZE * 3)
+#define TRACK_REC_LATENCY   1024 // frames
 
 #define NUMBER_OF_TRACKS    8
 

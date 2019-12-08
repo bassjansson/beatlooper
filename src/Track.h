@@ -52,6 +52,8 @@ public:
     {
         cout << "[Track " << trackIndex + 1 << "] ";
 
+        frame_t minRecLengthFrames = recLengthFrames;
+
         if (recLengthDenominator == 0)
         {
             recLengthDenominator = recLengthFrames;
@@ -88,6 +90,27 @@ public:
             cout << "Setting track recording length to ";
             cout << FRACTIONS_ARRAY[chosenFractionIndex].x << "/";
             cout << FRACTIONS_ARRAY[chosenFractionIndex].y << " of denominator." << endl;
+        }
+
+        if (recLengthFrames < minRecLengthFrames)
+            minRecLengthFrames = recLengthFrames;
+
+        frame_t fadeLengthFrames = TRACK_FADE_LENGTH * AUDIO_SAMPLE_RATE / 1000;
+
+        if (fadeLengthFrames * 2 > minRecLengthFrames)
+            fadeLengthFrames = minRecLengthFrames / 2;
+
+        for (frame_t i = 0; i < fadeLengthFrames; ++i)
+        {
+            float f = (float) i / (fadeLengthFrames - 1);
+
+            // Fade in
+            trackBuffer[i * TRACK_NUM_CHANNELS + LEFT]  *= f;
+            trackBuffer[i * TRACK_NUM_CHANNELS + RIGHT] *= f;
+
+            // Fade out
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + LEFT]  *= f;
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= f;
         }
 
         trackState = stateAfter;
