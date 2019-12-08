@@ -9,6 +9,7 @@
 
 #define TRACK_BUFFER_LENGTH 60 // seconds
 #define TRACK_NUM_CHANNELS  2
+#define TRACK_REC_LATENCY   (AUDIO_BUFFER_SIZE * 3)
 
 #define NUMBER_OF_TRACKS    8
 

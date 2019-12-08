@@ -173,7 +173,7 @@ public:
 
             case RECORDING:
                 if (recLengthFrames == 0)
-                    recStartFrame = currentFrame;
+                    recStartFrame = currentFrame - TRACK_REC_LATENCY;
 
                 if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
                 {
