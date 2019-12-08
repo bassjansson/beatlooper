@@ -33,7 +33,7 @@ int main(int argc, const char * argv[])
 
     Track ** tracks = new Track *[NUMBER_OF_TRACKS];
     for (int i = 0; i < NUMBER_OF_TRACKS; ++i)
-        tracks[i] = new Track(i + 1, inputChannelLeft, inputChannelRight);
+        tracks[i] = new Track(i, inputChannelLeft, inputChannelRight);
 
     Audio audio(tracks);
     Midi midi(tracks);

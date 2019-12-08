@@ -18,8 +18,8 @@ enum TrackState
 class Track
 {
 public:
-    Track(int trackNumber, int inputChannelLeft, int inputChannelRight) :
-        trackNumber(trackNumber),
+    Track(int trackIndex, int inputChannelLeft, int inputChannelRight) :
+        trackIndex(trackIndex),
         trackState(STOPPED),
         recStartFrame(0),
         recLengthFrames(0),
@@ -84,7 +84,7 @@ public:
 
     void printTrackStatus()
     {
-        cout << "[Track " << trackNumber << "] ";
+        cout << "[Track " << trackIndex + 1 << "] ";
 
         switch (trackState)
         {
@@ -156,7 +156,7 @@ public:
     } // process
 
 private:
-    const int trackNumber;
+    const int trackIndex;
     TrackState trackState;
 
     frame_t trackBufferSize;
