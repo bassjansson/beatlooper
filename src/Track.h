@@ -112,8 +112,8 @@ public:
             trackBuffer[i * TRACK_NUM_CHANNELS + RIGHT] *= f;
 
             // Fade out
-            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + LEFT]  *= 1.0f - f;
-            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= 1.0f - f;
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + LEFT]  *= f;
+            trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= f;
         }
 
         if (shouldStartPlayback)
@@ -186,8 +186,6 @@ public:
         int           numOutputChannels,
         frame_t       currentFrame)
     {
-        frame_t playPositionFrame;
-
         switch (trackState)
         {
             case STOPPED:
@@ -196,30 +194,34 @@ public:
             case PLAYING:
                 if (recLengthFrames > 0)
                 {
-                    playPositionFrame = (currentFrame - recStartFrame) % recLengthFrames;
+                    frame_t p;
 
                     if (shouldFadeIn)
                     {
                         shouldFadeIn = false;
+                        float f;
 
                         for (frame_t i = 0; i < framesPerBuffer; ++i)
                         {
-                            float f = (float) i / (framesPerBuffer - 1);
+                            p = (currentFrame + i - recStartFrame) % recLengthFrames;
+                            f = (float) i / (framesPerBuffer - 1);
 
                             outputBuffer[i * numOutputChannels + LEFT] +=
-                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT] * f;
+                              trackBuffer[p * TRACK_NUM_CHANNELS + LEFT] * f;
                             outputBuffer[i * numOutputChannels + RIGHT] +=
-                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT] * f;
+                              trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT] * f;
                         }
                     }
                     else
                     {
                         for (frame_t i = 0; i < framesPerBuffer; ++i)
                         {
+                            p = (currentFrame + i - recStartFrame) % recLengthFrames;
+
                             outputBuffer[i * numOutputChannels + LEFT] +=
-                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT];
+                              trackBuffer[p * TRACK_NUM_CHANNELS + LEFT];
                             outputBuffer[i * numOutputChannels + RIGHT] +=
-                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT];
+                              trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT];
                         }
                     }
                 }
@@ -232,11 +234,15 @@ public:
 
                 if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
                 {
+                    frame_t p;
+
                     for (frame_t i = 0; i < framesPerBuffer; ++i)
                     {
-                        trackBuffer[(i + recLengthFrames) * TRACK_NUM_CHANNELS + LEFT] =
+                        p = recLengthFrames + i;
+
+                        trackBuffer[p * TRACK_NUM_CHANNELS + LEFT] =
                           inputBuffer[i * numInputChannels + inputChannelLeft];
-                        trackBuffer[(i + recLengthFrames) * TRACK_NUM_CHANNELS + RIGHT] =
+                        trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT] =
                           inputBuffer[i * numInputChannels + inputChannelRight];
                     }
 
