@@ -29,8 +29,6 @@ public:
     {
         trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
         trackBuffer     = new float[trackBufferSize];
-
-        clearRecording();
     }
 
     ~Track()
@@ -38,13 +36,50 @@ public:
         delete[] trackBuffer;
     }
 
-    void clearRecording()
+    void startRecording()
     {
         recStartFrame   = 0;
         recLengthFrames = 0;
 
         for (frame_t i = 0; i < trackBufferSize; ++i)
             trackBuffer[i] = 0.0f;
+
+        trackState = RECORDING;
+    }
+
+    void stopRecording(TrackState stateAfter)
+    {
+        trackState = stateAfter;
+    }
+
+    void toggleRecording()
+    {
+        switch (trackState)
+        {
+            case STOPPED: startRecording();
+                break;
+            case PLAYING: startRecording();
+                break;
+            case RECORDING: stopRecording(STOPPED);
+                break;
+        }
+
+        printTrackStatus();
+    }
+
+    void togglePlayback()
+    {
+        switch (trackState)
+        {
+            case STOPPED: trackState = PLAYING;
+                break;
+            case PLAYING: trackState = STOPPED;
+                break;
+            case RECORDING: stopRecording(PLAYING);
+                break;
+        }
+
+        printTrackStatus();
     }
 
     void printTrackStatus()
@@ -62,48 +97,6 @@ public:
         }
 
         cout << endl;
-    }
-
-    void toggleRecord()
-    {
-        switch (trackState)
-        {
-            case STOPPED:
-                clearRecording();
-                trackState = RECORDING;
-                break;
-
-            case PLAYING:
-                clearRecording();
-                trackState = RECORDING;
-                break;
-
-            case RECORDING:
-                trackState = STOPPED;
-                break;
-        }
-
-        printTrackStatus();
-    }
-
-    void togglePlayStop()
-    {
-        switch (trackState)
-        {
-            case STOPPED:
-                trackState = PLAYING;
-                break;
-
-            case PLAYING:
-                trackState = STOPPED;
-                break;
-
-            case RECORDING:
-                trackState = PLAYING;
-                break;
-        }
-
-        printTrackStatus();
     }
 
     void process(

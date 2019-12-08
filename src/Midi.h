@@ -118,8 +118,8 @@ private:
                     bool record = command / NUMBER_OF_TRACKS;
 
                     record ?
-                    tracks[track]->toggleRecord() :
-                    tracks[track]->togglePlayStop();
+                    tracks[track]->toggleRecording() :
+                    tracks[track]->togglePlayback();
                 }
 
                 // cout << Pm_MessageStatus(midiEvent.message) << ", ";
