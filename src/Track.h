@@ -26,7 +26,8 @@ public:
         recLengthFrames(0),
         recLengthFramesMax(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE),
         inputChannelLeft(inputChannelLeft),
-        inputChannelRight(inputChannelRight)
+        inputChannelRight(inputChannelRight),
+        shouldFadeIn(false)
     {
         trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
         trackBuffer     = new float[trackBufferSize];
@@ -121,6 +122,7 @@ public:
 
     void startPlayback()
     {
+        shouldFadeIn = true;
         trackState = PLAYING;
     }
 
@@ -196,12 +198,29 @@ public:
                 {
                     playPositionFrame = (currentFrame - recStartFrame) % recLengthFrames;
 
-                    for (frame_t i = 0; i < framesPerBuffer; ++i)
+                    if (shouldFadeIn)
                     {
-                        outputBuffer[i * numOutputChannels + LEFT] +=
-                          trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT];
-                        outputBuffer[i * numOutputChannels + RIGHT] +=
-                          trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT];
+                        shouldFadeIn = false;
+
+                        for (frame_t i = 0; i < framesPerBuffer; ++i)
+                        {
+                            float f = (float) i / (framesPerBuffer - 1);
+
+                            outputBuffer[i * numOutputChannels + LEFT] +=
+                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT] * f;
+                            outputBuffer[i * numOutputChannels + RIGHT] +=
+                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT] * f;
+                        }
+                    }
+                    else
+                    {
+                        for (frame_t i = 0; i < framesPerBuffer; ++i)
+                        {
+                            outputBuffer[i * numOutputChannels + LEFT] +=
+                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + LEFT];
+                            outputBuffer[i * numOutputChannels + RIGHT] +=
+                              trackBuffer[(i + playPositionFrame) * TRACK_NUM_CHANNELS + RIGHT];
+                        }
                     }
                 }
 
@@ -209,7 +228,7 @@ public:
 
             case RECORDING:
                 if (recLengthFrames == 0)
-                    recStartFrame = currentFrame - TRACK_REC_LATENCY;
+                    recStartFrame = currentFrame - (TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000);
 
                 if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
                 {
@@ -246,6 +265,8 @@ private:
 
     int inputChannelLeft;
     int inputChannelRight;
+
+    bool shouldFadeIn;
 };
 
 frame_t Track::recLengthDenominator = 0;
