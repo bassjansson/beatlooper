@@ -48,9 +48,9 @@ public:
         trackState = RECORDING;
     }
 
-    void stopRecording(TrackState stateAfter)
+    void stopRecording(bool shouldStartPlayback)
     {
-        cout << "[Track " << trackIndex + 1 << "] ";
+        stopPlayback();
 
         frame_t minRecLengthFrames = recLengthFrames;
 
@@ -58,6 +58,7 @@ public:
         {
             recLengthDenominator = recLengthFrames;
 
+            cout << "[Track " << trackIndex + 1 << "] ";
             cout << "Setting track and denominator recording length to ";
             cout << (float) recLengthDenominator / AUDIO_SAMPLE_RATE << " seconds." << endl;
         }
@@ -87,6 +88,7 @@ public:
 
             recLengthFrames = (frame_t) (recLengthDenominator * chosenFraction + 0.5);
 
+            cout << "[Track " << trackIndex + 1 << "] ";
             cout << "Setting track recording length to ";
             cout << FRACTIONS_ARRAY[chosenFractionIndex].x << "/";
             cout << FRACTIONS_ARRAY[chosenFractionIndex].y << " of denominator." << endl;
@@ -113,8 +115,19 @@ public:
             trackBuffer[(minRecLengthFrames - 1 - i) * TRACK_NUM_CHANNELS + RIGHT] *= f;
         }
 
-        trackState = stateAfter;
+        if (shouldStartPlayback)
+            startPlayback();
     } // stopRecording
+
+    void startPlayback()
+    {
+        trackState = PLAYING;
+    }
+
+    void stopPlayback()
+    {
+        trackState = STOPPED;
+    }
 
     void toggleRecording()
     {
@@ -135,9 +148,9 @@ public:
     {
         switch (trackState)
         {
-            case STOPPED: trackState = PLAYING;
+            case STOPPED: startPlayback();
                 break;
-            case PLAYING: trackState = STOPPED;
+            case PLAYING: stopPlayback();
                 break;
             case RECORDING: stopRecording(PLAYING);
                 break;
