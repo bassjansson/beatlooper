@@ -33,7 +33,7 @@ public:
         trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
         trackBuffer     = new float[trackBufferSize];
 
-        preRecBufferSize = TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000;
+        preRecBufferSize = TRACK_REC_LATENCY * TRACK_NUM_CHANNELS * AUDIO_SAMPLE_RATE / 1000;
         preRecBuffer     = new float[preRecBufferSize];
 
         for (frame_t i = 0; i < trackBufferSize; ++i)
@@ -204,19 +204,15 @@ public:
 
             if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
             {
-                frame_t p;
-
                 for (frame_t i = 0; i < framesPerBuffer; ++i)
                 {
-                    p = recLengthFrames + i;
-
-                    trackBuffer[p * TRACK_NUM_CHANNELS + LEFT] =
+                    trackBuffer[recLengthFrames * TRACK_NUM_CHANNELS + LEFT] =
                       inputBuffer[i * numInputChannels + inputChannelLeft];
-                    trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT] =
+                    trackBuffer[recLengthFrames * TRACK_NUM_CHANNELS + RIGHT] =
                       inputBuffer[i * numInputChannels + inputChannelRight];
-                }
 
-                recLengthFrames += framesPerBuffer;
+                    recLengthFrames++;
+                }
             }
             else
             {
@@ -225,7 +221,16 @@ public:
         }
         else // trackState != RECORDING
         {
-            // TODO: fill preRecBuffer here
+            // Write input to pre recording buffer
+            for (frame_t i = 0; i < framesPerBuffer; ++i)
+            {
+                preRecBuffer[preRecBufferPointer * TRACK_NUM_CHANNELS + LEFT] =
+                  inputBuffer[i * numInputChannels + inputChannelLeft];
+                preRecBuffer[preRecBufferPointer * TRACK_NUM_CHANNELS + RIGHT] =
+                  inputBuffer[i * numInputChannels + inputChannelRight];
+
+                preRecBufferPointer = (preRecBufferPointer + 1) % preRecBufferSize;
+            }
 
             if (trackState == PLAYING)
             {
