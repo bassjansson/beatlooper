@@ -186,12 +186,38 @@ public:
         int           numOutputChannels,
         frame_t       currentFrame)
     {
-        switch (trackState)
+        if (trackState == RECORDING)
         {
-            case STOPPED:
-                break;
+            if (recLengthFrames == 0)
+                recStartFrame = currentFrame - (TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000);
 
-            case PLAYING:
+            if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
+            {
+                frame_t p;
+
+                for (frame_t i = 0; i < framesPerBuffer; ++i)
+                {
+                    p = recLengthFrames + i;
+
+                    trackBuffer[p * TRACK_NUM_CHANNELS + LEFT] =
+                      inputBuffer[i * numInputChannels + inputChannelLeft];
+                    trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT] =
+                      inputBuffer[i * numInputChannels + inputChannelRight];
+                }
+
+                recLengthFrames += framesPerBuffer;
+            }
+            else
+            {
+                trackState = STOPPED;
+            }
+        }
+        else // trackState != RECORDING
+        {
+            // TODO: fill preRecBuffer here
+
+            if (trackState == PLAYING)
+            {
                 if (recLengthFrames > 0)
                 {
                     frame_t p;
@@ -225,35 +251,7 @@ public:
                         }
                     }
                 }
-
-                break;
-
-            case RECORDING:
-                if (recLengthFrames == 0)
-                    recStartFrame = currentFrame - (TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000);
-
-                if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
-                {
-                    frame_t p;
-
-                    for (frame_t i = 0; i < framesPerBuffer; ++i)
-                    {
-                        p = recLengthFrames + i;
-
-                        trackBuffer[p * TRACK_NUM_CHANNELS + LEFT] =
-                          inputBuffer[i * numInputChannels + inputChannelLeft];
-                        trackBuffer[p * TRACK_NUM_CHANNELS + RIGHT] =
-                          inputBuffer[i * numInputChannels + inputChannelRight];
-                    }
-
-                    recLengthFrames += framesPerBuffer;
-                }
-                else
-                {
-                    trackState = STOPPED;
-                }
-
-                break;
+            }
         }
     } // process
 
