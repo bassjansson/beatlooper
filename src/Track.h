@@ -25,17 +25,28 @@ public:
         recStartFrame(0),
         recLengthFrames(0),
         recLengthFramesMax(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE),
+        preRecBufferPointer(0),
         inputChannelLeft(inputChannelLeft),
         inputChannelRight(inputChannelRight),
         shouldFadeIn(false)
     {
         trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
         trackBuffer     = new float[trackBufferSize];
+
+        preRecBufferSize = TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000;
+        preRecBuffer     = new float[preRecBufferSize];
+
+        for (frame_t i = 0; i < trackBufferSize; ++i)
+            trackBuffer[i] = 0.0f;
+
+        for (frame_t i = 0; i < preRecBufferSize; ++i)
+            preRecBuffer[i] = 0.0f;
     }
 
     ~Track()
     {
         delete[] trackBuffer;
+        delete[] preRecBuffer;
     }
 
     void startRecording()
@@ -266,6 +277,10 @@ private:
     frame_t recLengthFrames;
     const frame_t recLengthFramesMax;
     static frame_t recLengthDenominator;
+
+    frame_t preRecBufferPointer;
+    frame_t preRecBufferSize;
+    float * preRecBuffer;
 
     int inputChannelLeft;
     int inputChannelRight;
