@@ -8,7 +8,7 @@
 #define MIDI_IN_BUFFER_SIZE 100 // messages
 
 #define TRACK_BUFFER_LENGTH 60 // seconds
-#define TRACK_REC_LATENCY   30 // ms
+#define TRACK_PREREC_LENGTH 30 // ms
 #define TRACK_FADE_LENGTH   8  // ms
 #define TRACK_NUM_CHANNELS  2
 

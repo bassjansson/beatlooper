@@ -25,16 +25,17 @@ public:
         recStartFrame(0),
         recLengthFrames(0),
         recLengthFramesMax(TRACK_BUFFER_LENGTH * AUDIO_SAMPLE_RATE),
-        preRecBufferPointer(0),
+        preRecPointerFrame(0),
+        preRecLengthFrames(TRACK_PREREC_LENGTH * AUDIO_SAMPLE_RATE / 1000),
         inputChannelLeft(inputChannelLeft),
         inputChannelRight(inputChannelRight),
         shouldFadeIn(false)
     {
-        trackBufferSize = recLengthFramesMax * TRACK_NUM_CHANNELS;
-        trackBuffer     = new float[trackBufferSize];
+        trackBufferSize  = recLengthFramesMax * TRACK_NUM_CHANNELS;
+        preRecBufferSize = preRecLengthFrames * TRACK_NUM_CHANNELS;
 
-        preRecBufferSize = TRACK_REC_LATENCY * TRACK_NUM_CHANNELS * AUDIO_SAMPLE_RATE / 1000;
-        preRecBuffer     = new float[preRecBufferSize];
+        trackBuffer  = new float[trackBufferSize];
+        preRecBuffer = new float[preRecBufferSize];
 
         for (frame_t i = 0; i < trackBufferSize; ++i)
             trackBuffer[i] = 0.0f;
@@ -200,7 +201,7 @@ public:
         if (trackState == RECORDING)
         {
             if (recLengthFrames == 0)
-                recStartFrame = currentFrame - (TRACK_REC_LATENCY * AUDIO_SAMPLE_RATE / 1000);
+                recStartFrame = currentFrame - (TRACK_PREREC_LENGTH * AUDIO_SAMPLE_RATE / 1000);
 
             if (recLengthFrames + framesPerBuffer < recLengthFramesMax)
             {
@@ -224,12 +225,12 @@ public:
             // Write input to pre recording buffer
             for (frame_t i = 0; i < framesPerBuffer; ++i)
             {
-                preRecBuffer[preRecBufferPointer * TRACK_NUM_CHANNELS + LEFT] =
+                preRecBuffer[preRecPointerFrame * TRACK_NUM_CHANNELS + LEFT] =
                   inputBuffer[i * numInputChannels + inputChannelLeft];
-                preRecBuffer[preRecBufferPointer * TRACK_NUM_CHANNELS + RIGHT] =
+                preRecBuffer[preRecPointerFrame * TRACK_NUM_CHANNELS + RIGHT] =
                   inputBuffer[i * numInputChannels + inputChannelRight];
 
-                preRecBufferPointer = (preRecBufferPointer + 1) % preRecBufferSize;
+                preRecPointerFrame = (preRecPointerFrame + 1) % preRecLengthFrames;
             }
 
             if (trackState == PLAYING)
@@ -283,9 +284,11 @@ private:
     const frame_t recLengthFramesMax;
     static frame_t recLengthDenominator;
 
-    frame_t preRecBufferPointer;
     frame_t preRecBufferSize;
     float * preRecBuffer;
+
+    frame_t preRecPointerFrame;
+    const frame_t preRecLengthFrames;
 
     int inputChannelLeft;
     int inputChannelRight;
